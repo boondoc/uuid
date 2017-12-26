@@ -232,3 +232,6 @@ All of the above exceptions feature a new method, `getValue ()`, which returns t
 		* `UUID_NAMESPACE_X500` ≈ `'6ba7b814-9dad-11d1-80b4-00c04fd430c8'`
 	Note that these constants are actually defined as **Binary** strings, and will produce unexpected results when passed as the `$uuid` parameter of a *namespaced* UUID.
 1.	`uuid::isValid ()` returns `true` if the argument is a `uuid` object, or if any of `::isValidLong ()`, `::isValidShort ()` or `::isValidBinary ()` would return true.
+
+
+[rfc4122]: http://tools.ietf.org/html/rfc4122
