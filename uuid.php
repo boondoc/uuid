@@ -49,6 +49,8 @@
 					$this->binary				=  self::import_short ($string);
 				elseif (self::isValidBinary ($string))
 					$this->binary				= $string;
+				elseif ($namespace === null)
+					throw new InvalidNamespace ($string);
 				elseif ($namespace === false)
 				{
 					if (mb_detect_encoding ($string) === false)
@@ -61,9 +63,7 @@
 			{
 				if (empty ($namespace) or $namespace === true)
 					$namespace				=      self::$NAMESPACE;
-				elseif (self::isValid ($namespace))
-					$namespace				= (new self ($namespace, false))->binary;
-				else	 throw new InvalidNamespace ($namespace);
+				else	$namespace				= (new self ($namespace, null))->binary;
 
 
 				// Command-line utilities don't bother converting UUID subjects to binary first — all v3/5 input
@@ -176,12 +176,9 @@
 		public	static	function	   getDefaultNamespace	()		{ return new self (self::$NAMESPACE, false); }
 		public	static	function	   setDefaultNamespace	($namespace)
 		{
-			if (!self::isValid ($namespace))				// If the namespace isn't tested first, invalid values throw the wrong exception
-				throw new InvalidNamespace ($namespace);
-
 			self::$NAMESPACE			= $namespace instanceof self
 								? $namespace->binary
-								: (new self ($namespace, false))->binary;
+								: (new self ($namespace, null))->binary;
 		}
 
 		public	static	function	   getMACAddress 	()		{ return preg_replace ('#^(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$#',
@@ -201,18 +198,12 @@
 
 		public	static	function	   v3			($uuid = '', $namespace = '')
 		{
-			if (!empty ($namespace) and !self::isValid ($namespace))	// If the namespace isn't tested first, invalid values throw the wrong exception
-				throw new InvalidNamespace ($namespace);
-
-			return new self (self::version3 ($namespace ? (new self ($namespace, false))->binary : self::$NAMESPACE, strval ($uuid)), false);
+			return new self (self::version3 ($namespace ? (new self ($namespace, null))->binary : self::$NAMESPACE, strval ($uuid)), false);
 		}
 
 		public	static	function	   v5			($uuid = '', $namespace = '')
 		{
-			if (!empty ($namespace) and !self::isValid ($namespace))	// If the namespace isn't tested first, invalid values throw the wrong exception
-				throw new InvalidNamespace ($namespace);
-
-			return new self (self::version5 ($namespace ? (new self ($namespace, false))->binary : self::$NAMESPACE, strval ($uuid)), false);
+			return new self (self::version5 ($namespace ? (new self ($namespace, null))->binary : self::$NAMESPACE, strval ($uuid)), false);
 		}
 	}
 
