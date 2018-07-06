@@ -223,13 +223,14 @@ All of the above exceptions feature a new method, `getValue ()`, which returns t
 ```
 
 **Notes:**
+
 1.	If the default namespace is never set, it defaults to the “nil” UUID `'00000000-0000-0000-0000-000000000000'`.
 1.	[RFC 4122][rfc4122] Appendix C suggests some predefined namespaces. Constants defined by this library are:
-		* `UUID_NAMESPACE_NIL`  ≈ `'00000000-0000-0000-0000-000000000000'`
-		* `UUID_NAMESPACE_DNS`  ≈ `'6ba7b810-9dad-11d1-80b4-00c04fd430c8'`
-		* `UUID_NAMESPACE_URL`  ≈ `'6ba7b811-9dad-11d1-80b4-00c04fd430c8'`
-		* `UUID_NAMESPACE_OID`  ≈ `'6ba7b812-9dad-11d1-80b4-00c04fd430c8'`
-		* `UUID_NAMESPACE_X500` ≈ `'6ba7b814-9dad-11d1-80b4-00c04fd430c8'`
+	* `UUID_NAMESPACE_NIL`  ≈ `'00000000-0000-0000-0000-000000000000'`
+	* `UUID_NAMESPACE_DNS`  ≈ `'6ba7b810-9dad-11d1-80b4-00c04fd430c8'`
+	* `UUID_NAMESPACE_URL`  ≈ `'6ba7b811-9dad-11d1-80b4-00c04fd430c8'`
+	* `UUID_NAMESPACE_OID`  ≈ `'6ba7b812-9dad-11d1-80b4-00c04fd430c8'`
+	* `UUID_NAMESPACE_X500` ≈ `'6ba7b814-9dad-11d1-80b4-00c04fd430c8'`
 	Note that these constants are actually defined as **Binary** strings, and will produce unexpected results when passed as the `$uuid` parameter of a *namespaced* UUID.
 1.	`uuid::isValid ()` returns `true` if the argument is a `uuid` object, or if any of `::isValidLong ()`, `::isValidShort ()` or `::isValidBinary ()` would return true.
 
