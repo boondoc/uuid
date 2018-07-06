@@ -14,7 +14,7 @@ Once generated, UUIDs are stored and treated as strings, with no internal struct
 
 ## Installation
 
-**With [Composer](https://getcomposer.org):**
+**With [Composer][composer]:**
 
 ```bash
 composer require boondoc/uuid
@@ -235,4 +235,5 @@ All of the above exceptions feature a new method, `getValue ()`, which returns t
 1.	`uuid::isValid ()` returns `true` if the argument is a `uuid` object, or if any of `::isValidLong ()`, `::isValidShort ()` or `::isValidBinary ()` would return true.
 
 
+[composer]: https://getcomposer.org/
 [rfc4122]: http://tools.ietf.org/html/rfc4122
