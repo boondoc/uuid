@@ -29,5 +29,15 @@
 	"config"                                        :
 	{
 		"vendor-dir"                                    : "imports"
+	},
+
+	"scripts"					:
+	{
+		"test"						: "phpunit --color=always"
+	},
+
+	"scripts-descriptions"				:
+	{
+		"test"						: "Run unit tests."
 	}
 }
