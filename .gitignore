@@ -49,7 +49,7 @@
 node_modules/
 
 # ignore composer vendor directory (personalised!)
-/imports
+/props
 
 # ignore composer lock file anyway (it's a library!)
 /composer.lock
@@ -102,3 +102,6 @@ Thumbs.db
 # track these files, if they exist
 !.gitignore
 !.editorconfig
+!tests/.config.php
+!tests/.loader.php
+!tests/.data.php

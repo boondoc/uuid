@@ -155,7 +155,7 @@ All of the above exceptions feature a new method, `getValue ()`, which returns t
 
 ```php
 <?php
-	require ('imports/autoload.php');		// Or 'vendor/autoload.php' if youʼre a traditionalist…
+	require ('props/autoload.php'); 		// Or 'vendor/autoload.php' if youʼre a traditionalist…
 
 	use Boondoc\uuid;
 
