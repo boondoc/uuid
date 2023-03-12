@@ -40,14 +40,14 @@
 			if (empty ($namespace))
 			{
 				if (empty ($uuid))
-					$this->binary				=  self::version4 ();
-				elseif ($uuid instanceof self)
+					$this->binary				=  static::version4 ();
+				elseif ($uuid instanceof static)
 					$this->binary				= $uuid->binary;
-				elseif (self::isValidLong   ($string))
-					$this->binary				=  self::import_long ($string);
-				elseif (self::isValidShort  ($string))
-					$this->binary				=  self::import_short ($string);
-				elseif (self::isValidBinary ($string))
+				elseif (static::isValidLong   ($string))
+					$this->binary				=  static::import_long ($string);
+				elseif (static::isValidShort  ($string))
+					$this->binary				=  static::import_short ($string);
+				elseif (static::isValidBinary ($string))
 					$this->binary				= $string;
 				elseif ($namespace === null)
 					throw new InvalidNamespace ($string);
@@ -62,19 +62,19 @@
 			if (empty ($this->binary))
 			{
 				if (empty ($namespace) or $namespace === true)
-					$namespace				=      self::$NAMESPACE;
-				else	$namespace				= (new self ($namespace, null))->binary;
+					$namespace				=      static::$NAMESPACE;
+				else	$namespace				= (new static ($namespace, null))->binary;
 
 
 				// Command-line utilities don't bother converting UUID subjects to binary first — all v3/5 input
 				// is treated as raw binary. To match expected behaviour, object literals should be converted
 				// to their long format before processing.
-				$this->binary                           =  self::version5 ($namespace, strval ($uuid));
+				$this->binary                           =  static::version5 ($namespace, strval ($uuid));
 			}
 
 
-			$this->long				=  self::binary_to_long  ($this->binary);
-			$this->short				=  self::binary_to_short ($this->binary);
+			$this->long				=  static::binary_to_long  ($this->binary);
+			$this->short				=  static::binary_to_short ($this->binary);
 		}
 
 		public		function	 __toString		()		{ return $this->long; }
@@ -84,7 +84,20 @@
 				return $this->$name;
 
 			if ($name === 'sql')
-				return '0x' . strtoupper (self::long_raw ($this->long));
+				return '0x' . strtoupper (static::long_raw ($this->long));
+
+			if ($name === 'version')
+				return ord ($this->binary[6]) >> 4;
+
+			if ($name === 'variant')
+			{
+				$variant				=  ord ($this->binary[8]);
+
+				if (($variant & 0x80) === 0x00)	return 0;	// 0xx
+				if (($variant & 0xC0) === 0x80)	return 1;	// 10x
+				if (($variant & 0xE0) === 0xC0)	return 3;	// 110
+								return 5;	// 111
+			}
 
 			if ($name === 'version')
 				return ord ($this->binary[6]) >> 4;
@@ -103,26 +116,26 @@
 		}
 
 
-		public	static	function	   isValid		($string)	{ return ($string instanceof self) ? : self::isValidBinary ($string) || self::isValidLong ($string) || self::isValidShort ($string); }
+		public	static	function	   isValid		($string)	{ return ($string instanceof static) ? : static::isValidBinary ($string) || static::isValidLong ($string) || static::isValidShort ($string); }
 		private static	function	   isValidRx		($string, $rx)	{ return   preg_match ($rx, $string) === 1; }
-		public	static	function	   isValidLong		($string)	{ return   self::isValidRx ($string, self::RX_LONG); }
-		public	static	function	   isValidShort 	($string)	{ return   self::isValidRx ($string, self::RX_SHORT) && self::isValidBinary (self::import_short ($string)); }
-		public	static	function	   isValidBinary	($string)	{ return   self::isValidBinaryNil ($string) || self::isValidBinaryReal ($string); }
+		public	static	function	   isValidLong		($string)	{ return   static::isValidRx ($string, static::RX_LONG); }
+		public	static	function	   isValidShort 	($string)	{ return   static::isValidRx ($string, static::RX_SHORT) && static::isValidBinary (static::import_short ($string)); }
+		public	static	function	   isValidBinary	($string)	{ return   static::isValidBinaryNil ($string) || static::isValidBinaryReal ($string); }
 		private static	function	   isValidBinaryNil	($string)	{ return  $string === UUID_NAMESPACE_NIL; }
-		private static	function	   isValidBinaryReal	($string)	{ return   strlen (bin2hex ($string)) === 32 && in_array (ord ($string[6]) >> 4, self::VERSIONS) && (ord ($string[8]) & 0xC0) === 0x80; }
+		private static	function	   isValidBinaryReal	($string)	{ return   strlen (bin2hex ($string)) === 32 && in_array (ord ($string[6]) >> 4, static::VERSIONS) && (ord ($string[8]) & 0xC0) === 0x80; }
 
-		private static	function	   import_long		($string)	{ return   self::long_to_binary                   ($string); }
-		private static	function	   import_short 	($string)	{ return   self::short_to_binary (self::short_url ($string)); }
+		private static	function	   import_long		($string)	{ return   static::long_to_binary                   ($string); }
+		private static	function	   import_short 	($string)	{ return   static::short_to_binary (static::short_url ($string)); }
 
 		private static	function	   short_b64		($string)	{ return  str_replace (['_', '-'],	['/', '+'],		 $string) . '=='; }
 		private static	function	   short_url		($string)	{ return  str_replace (['/', '+', '='],	['_', '-', ''], 	 $string); }
 		private static	function	   long_raw		($string)	{ return  str_replace (['{', '-', '}'],	 '',			 $string); }
 		private static	function	   long_sep		($string)	{ return preg_replace ('#^(.{8})(.{4})(.{4})(.{4})(.{12})$#',
 																'$1-$2-$3-$4-$5',	 $string); }
-		private static	function	   long_to_binary	($uuid) 	{ return  hex2bin			(self::long_raw 	($uuid)); }
-		private static	function	   short_to_binary	($uuid) 	{ return  base64_decode 		(self::short_b64	($uuid)); }
-		private static	function	   binary_to_long	($uuid) 	{ return  self::long_sep		(bin2hex		($uuid)); }
-		private static	function	   binary_to_short	($uuid) 	{ return  self::short_url		(base64_encode		($uuid)); }
+		private static	function	   long_to_binary	($uuid) 	{ return  hex2bin			(static::long_raw 	($uuid)); }
+		private static	function	   short_to_binary	($uuid) 	{ return  base64_decode 		(static::short_b64	($uuid)); }
+		private static	function	   binary_to_long	($uuid) 	{ return  static::long_sep		(bin2hex		($uuid)); }
+		private static	function	   binary_to_short	($uuid) 	{ return  static::short_url		(base64_encode		($uuid)); }
 
 
 		private static	function	   hex			($dec, $l = 16) { return  hex2bin (str_pad ($dec, intval ($l), '0', STR_PAD_LEFT)); }
@@ -138,7 +151,7 @@
 		{
 			$length 				=  strlen                   ($bytes);
 			$value					=  dechex  (hexdec (bin2hex ($bytes))        + 1);
-			$bytes					=  self::hex                ($value, $length * 4);
+			$bytes					=  static::hex                ($value, $length * 4);
 
 			return substr ($bytes, -$length);
 		}
@@ -157,9 +170,9 @@
 		}
 
 
-		private static	function	   version3		($space, $name) { return self::version (self::namespaced ($space, $name,  'md5'), 3); }
-		private static	function	   version5		($space, $name)	{ return self::version (self::namespaced ($space, $name, 'sha1'), 5); }
-		private static	function	   version4		()		{ return self::version (self::random (),                          4); }
+		private static	function	   version3		($space, $name) { return static::version (static::namespaced ($space, $name,  'md5'), 3); }
+		private static	function	   version5		($space, $name)	{ return static::version (static::namespaced ($space, $name, 'sha1'), 5); }
+		private static	function	   version4		()		{ return static::version (static::random (),                          4); }
 
 		private static	function	   version1		()
 		{
@@ -168,55 +181,55 @@
 			$time					=  microtime (true) * 10000000 + 0x01B21DD213814000;
 
 			if (empty ($sequence) or ($time - $last) > 10000)
-				$sequence				=  self::random    ( 2);
-			else	$sequence				=  self::increment ($sequence);
+				$sequence				=  static::random    ( 2);
+			else	$sequence				=  static::increment ($sequence);
 
 			$last					= $time;
 
 			// $time = number of 100-ns intervals since 1582-10-15 00:00:00 UTC
 			// It's a 64-bit float, so we can't use just blindly use dechex in case we're on a 32-bit system,
 			// because that would truncate the timestamp to 32-bits as well.
-			$hash					=  self::hex (dechex  ($time & 0xFFFFFFFF),                 8)
-								.  self::hex (dechex  ($time / 0xFFFFFFFF        & 0xFFFF), 4)
-								.  self::hex (dechex (($time / 0xFFFFFFFF >> 16) & 0xFFFF), 4)
+			$hash					=  static::hex (dechex  ($time & 0xFFFFFFFF),                 8)
+								.  static::hex (dechex  ($time / 0xFFFFFFFF        & 0xFFFF), 4)
+								.  static::hex (dechex (($time / 0xFFFFFFFF >> 16) & 0xFFFF), 4)
 								. $sequence
-								.  self::$MACADDRESS;
+								.  static::$MACADDRESS;
 
-			return self::version ($hash, 1);
+			return static::version ($hash, 1);
 		}
 
 
-		public	static	function	   getDefaultNamespace	()		{ return new self (self::$NAMESPACE, false); }
+		public	static	function	   getDefaultNamespace	()		{ return new static (static::$NAMESPACE, false); }
 		public	static	function	   setDefaultNamespace	($namespace)
 		{
-			self::$NAMESPACE			= $namespace instanceof self
+			static::$NAMESPACE			= $namespace instanceof static
 								? $namespace->binary
-								: (new self ($namespace, null))->binary;
+								: (new static ($namespace, null))->binary;
 		}
 
 		public	static	function	   getMACAddress 	()		{ return preg_replace ('#^(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$#',
 																'$1:$2:$3:$4:$5:$6',
-																 bin2hex (self::$MACADDRESS)); }
+																 bin2hex (static::$MACADDRESS)); }
 		public	static	function	   setMACAddress 	($macaddress)
 		{
-			if (!self::isValidRx ($macaddress, self::RX_MAC))
+			if (!static::isValidRx ($macaddress, static::RX_MAC))
 				throw new InvalidAddress ($macaddress);
 
-			self::$MACADDRESS			=  hex2bin (str_replace ([':', '-'], '', $macaddress));
+			static::$MACADDRESS			=  hex2bin (str_replace ([':', '-'], '', $macaddress));
 		}
 
 
-		public	static	function	   v1			()		{ return new self (self::version1 (), false); }
-		public	static	function	   v4			()		{ return new self (self::version4 (), false); }
+		public	static	function	   v1			()		{ return new static (static::version1 (), false); }
+		public	static	function	   v4			()		{ return new static (static::version4 (), false); }
 
 		public	static	function	   v3			($uuid = '', $namespace = '')
 		{
-			return new self (self::version3 ($namespace ? (new self ($namespace, null))->binary : self::$NAMESPACE, strval ($uuid)), false);
+			return new static (static::version3 ($namespace ? (new static ($namespace, null))->binary : static::$NAMESPACE, strval ($uuid)), false);
 		}
 
 		public	static	function	   v5			($uuid = '', $namespace = '')
 		{
-			return new self (self::version5 ($namespace ? (new self ($namespace, null))->binary : self::$NAMESPACE, strval ($uuid)), false);
+			return new static (static::version5 ($namespace ? (new static ($namespace, null))->binary : static::$NAMESPACE, strval ($uuid)), false);
 		}
 	}
 
