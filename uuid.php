@@ -86,6 +86,19 @@
 			if ($name === 'sql')
 				return '0x' . strtoupper (self::long_raw ($this->long));
 
+			if ($name === 'version')
+				return ord ($this->binary[6]) >> 4;
+
+			if ($name === 'variant')
+			{
+				$variant				=  ord ($this->binary[8]);
+
+				if (($variant & 0x80) === 0x00)	return 0;	// 0xx
+				if (($variant & 0xC0) === 0x80)	return 1;	// 10x
+				if (($variant & 0xE0) === 0xC0)	return 3;	// 110
+								return 5;	// 111
+			}
+
 			throw new \BadMethodCallException (sprintf ('Undefined property: %s::$%s', __CLASS__, $name));
 		}
 

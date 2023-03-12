@@ -22,8 +22,8 @@
 				->isTestedInstance		()
 				->isInstanceOf			($this->getTestedClassName ())
 
-				->string			($string_clean)
-				->$maybe			($uuid->long)
+				->string			($uuid->long)
+				->$maybe			($string_clean)
 
 				->castToString			($uuid)
 				->$maybe			($string_clean);
@@ -41,8 +41,8 @@
 				->isTestedInstance		()
 				->isInstanceOf			($this->getTestedClassName ())
 
-				->string			($string_clean)
-				->$maybe			($uuid->short);
+				->string			($uuid->short)
+				->$maybe			($string_clean);
 		}
 
 		public function testImportBinary ($string_given, $should_validate, $message)
@@ -54,8 +54,8 @@
 				->isTestedInstance		()
 				->isInstanceOf			($this->getTestedClassName ());
 
-			$this	->string			($string_given)
-				->$maybe			($uuid->binary);
+			$this	->string			($uuid->binary)
+				->$maybe			($string_given);
 		}
 
 		public function testImportInvalidString ($string)
@@ -95,6 +95,14 @@
 				->boolean			($class::isValid	(strval ($namespace)))
 				->isTrue
 
+				->assert			('UUID v4 generation self-reports as version 4')
+				->integer			($namespace->version)
+				->isIdenticalTo			( 4)
+
+				->assert			('UUID v4 generation self-reports as variant 1')
+				->integer			($namespace->variant)
+				->isIdenticalTo			( 1)
+
 
 				->assert			('UUID v5 generation with default namespace returns a valid long format')
 				->boolean			($class::isValidLong		($uuid_nsdefault->long))
@@ -112,6 +120,14 @@
 				->boolean			($class::isValid	(strval ($uuid_nsdefault)))
 				->isTrue
 
+				->assert			('UUID v5 generation with default namespace self-reports as version 5')
+				->integer			($uuid_nsdefault->version)
+				->isIdenticalTo			( 5)
+
+				->assert			('UUID v5 generation with default namespace self-reports as variant 1')
+				->integer			($uuid_nsdefault->variant)
+				->isIdenticalTo			( 1)
+
 				->assert			('UUID v5 generation with custom namespace returns a valid long format')
 				->boolean			($class::isValidLong		($uuid_nscustom ->long))
 				->isTrue
@@ -126,7 +142,15 @@
 
 				->assert			('UUID v5 generation with custom namespace returns a valid toString')
 				->boolean			($class::isValid	(strval ($uuid_nscustom)))
-				->isTrue;
+				->isTrue
+
+				->assert			('UUID v5 generation with custom namespace self-reports as version 5')
+				->integer			($uuid_nscustom->version)
+				->isIdenticalTo			( 5)
+
+				->assert			('UUID v5 generation with custom namespace self-reports as variant 1')
+				->integer			($uuid_nscustom->variant)
+				->isIdenticalTo			( 1);
 		}
 
 		public function testReversible ($string)
@@ -137,14 +161,14 @@
 			$uuid3					= $this->newTestedInstance ($uuid1->binary);
 
 			    if ($class::isValidLong	($string))
-				$this	->string			($string)
-					->isIdenticalTo			($uuid1->long);
+				$this	->string			($uuid1->long)
+					->isIdenticalTo			($string);
 			elseif ($class::isValidShort	($string))
-				$this	->string			($string)
-					->isIdenticalTo			($uuid1->short);
+				$this	->string			($uuid1->short)
+					->isIdenticalTo			($string);
 			elseif ($class::isValidBinary	($string))
-				$this	->string			($string)
-					->isIdenticalTo			($uuid1->binary);
+				$this	->string			($uuid1->binary)
+					->isIdenticalTo			($string);
 			elseif ($class::isValid		($string))
 				// This assertion is actually an error message: we *want* this to fail!
 				$this	->assert ("Valid UUID '{$string}' fails long, short and binary form criteria")
@@ -195,7 +219,6 @@
 			$name					= 'test';
 
 			$this	->assert			('Same UUID v3 inputs generated different results')
-
 				->string			( strval ($class::v3 ($name)))
 				->isIdenticalTo			( strval ($class::v3 ($name)))
 
@@ -210,7 +233,6 @@
 			$name					= 'test';
 
 			$this	->assert			('Same UUID v5 inputs generated different results')
-
 				->string			( strval ($class::v5			($name)))
 				->isIdenticalTo			( strval ($class::v5			($name)))
 				->isIdenticalTo			( strval ($this->newTestedInstance	($name)))
@@ -230,12 +252,12 @@
 				->boolean			($class::isValid ($namespace))
 
 				->assert			('Generated the expected long form')
-				->string			($long)
-				->isIdenticalTo			($uuid->long)
+				->string			($uuid->long)
+				->isIdenticalTo			($long)
 
 				->assert			('Generated the expected short form')
-				->string			($short)
-				->isIdenticalTo			($uuid->short);
+				->string			($uuid->short)
+				->isIdenticalTo			($short);
 		}
 
 		public function testInstanceNamespacesInvalid ($namespace, $name)
@@ -250,12 +272,12 @@
 											$this->newTestedInstance ($namespace));
 
 			$this	->assert			('Generated the expected long form')
-				->string			($long)
-				->isIdenticalTo			($uuid->long)
+				->string			($uuid->long)
+				->isIdenticalTo			($long)
 
 				->assert			('Generated the expected short form')
-				->string			($short)
-				->isIdenticalTo			($uuid->short);
+				->string			($uuid->short)
+				->isIdenticalTo			($short);
 		}
 
 		public function testInstanceNamespacesDefault ($namespace, $name, $long, $short)
@@ -267,12 +289,12 @@
 			$uuid					= $this->newTestedInstance ($name, true);
 
 			$this	->assert			('Generated the expected long form')
-				->string			($long)
-				->isIdenticalTo			($uuid->long)
+				->string			($uuid->long)
+				->isIdenticalTo			($long)
 
 				->assert			('Generated the expected short form')
-				->string			($short)
-				->isIdenticalTo			($uuid->short);
+				->string			($uuid->short)
+				->isIdenticalTo			($short);
 		}
 
 		public function testFactoryNamespacesVersion3 ($namespace, $name, $long, $short)
@@ -285,12 +307,20 @@
 				->boolean			($class::isValid ($namespace))
 
 				->assert			('Generated the expected long form')
-				->string			($long)
-				->isIdenticalTo			($uuid->long)
+				->string			($uuid->long)
+				->isIdenticalTo			($long)
 
 				->assert			('Generated the expected short form')
-				->string			($short)
-				->isIdenticalTo			($uuid->short);
+				->string			($uuid->short)
+				->isIdenticalTo			($short)
+
+				->assert			('Self-reports as version 3')
+				->integer			($uuid->version)
+				->isIdenticalTo			( 3)
+
+				->assert			('Self-reports as variant 1')
+				->integer			($uuid->variant)
+				->isIdenticalTo			( 1);
 		}
 
 		public function testFactoryNamespacesVersion5 ($namespace, $name, $long, $short)
@@ -303,12 +333,20 @@
 				->boolean			($class::isValid ($namespace))
 
 				->assert			('Generated the expected long form')
-				->string			($long)
-				->isIdenticalTo			($uuid->long)
+				->string			($uuid->long)
+				->isIdenticalTo			($long)
 
 				->assert			('Generated the expected short form')
-				->string			($short)
-				->isIdenticalTo			($uuid->short);
+				->string			($uuid->short)
+				->isIdenticalTo			($short)
+
+				->assert			('Self-reports as version 5')
+				->integer			($uuid->version)
+				->isIdenticalTo			( 5)
+
+				->assert			('Self-reports as variant 1')
+				->integer			($uuid->variant)
+				->isIdenticalTo			( 1);
 		}
 
 		public function testFactoryNamespacesInvalid ($namespace, $name)
@@ -326,12 +364,12 @@
 			$uuid					= $class::v5 ($this->newTestedInstance ($name), $namespace);
 
 			$this	->assert			('Generated the expected long form')
-				->string			($long)
-				->isIdenticalTo			($uuid->long)
+				->string			($uuid->long)
+				->isIdenticalTo			($long)
 
 				->assert			('Generated the expected short form')
-				->string			($short)
-				->isIdenticalTo			($uuid->short);
+				->string			($uuid->short)
+				->isIdenticalTo			($short);
 		}
 
 		public function testFactoryNamespacesDefault ($namespace, $name, $long, $short)
@@ -343,12 +381,12 @@
 			$uuid					= $class::v5 ($name);
 
 			$this	->assert			('Generated the expected long form')
-				->string			($long)
-				->isIdenticalTo			($uuid->long)
+				->string			($uuid->long)
+				->isIdenticalTo			($long)
 
 				->assert			('Generated the expected short form')
-				->string			($short)
-				->isIdenticalTo			($uuid->short);
+				->string			($uuid->short)
+				->isIdenticalTo			($short);
 		}
 
 		public function testAddressesValid ($mac_declared)

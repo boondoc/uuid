@@ -7,7 +7,7 @@ Three string output formats are provided:
 *	“Short” format is a 22-character base64-encoded string using URL-safe characters and no padding
 *	“Binary” format is a 16-character octet blob (big-endian encoding)
 
-UUID variants 0 and 2 are not generated, or accepted as valid input.
+UUID variants 0, 3 and 5 are not generated, or accepted as valid input.
 
 Once generated, UUIDs are stored and treated as strings, with no internal structure — timestamp, clock sequence, etc. are ignored. Analysis and rearrangement of component fields for sorting is *not* supported.
 
@@ -133,6 +133,16 @@ echo $u->long			. PHP_EOL;	// fae0b286-007f-3824-a616-16d7332b7a09
 echo $u->short			. PHP_EOL;	// -uCyhgB_OCSmFhbXMyt6CQ
 echo bin2hex ($u->binary)	. PHP_EOL;	// fae0b286007f3824a61616d7332b7a09
 echo $u				. PHP_EOL;	// fae0b286-007f-3824-a616-16d7332b7a09
+```
+
+**Additional properties:**
+
+The UUID version and variant are also available as read-only properties.
+
+```php
+echo $u				. PHP_EOL;	// fae0b286-007f-3824-a616-16d7332b7a09
+echo $u->version		. PHP_EOL;	// 3
+echo $u->variant		. PHP_EOL;	// 1
 ```
 
 
